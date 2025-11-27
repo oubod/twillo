@@ -4,3 +4,8 @@ builder = "dockerfile"
 [deploy]
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
+
+[variables]
+PORT = "5678"
+N8N_PORT = "5678"
+N8N_HOST = "0.0.0.0"
