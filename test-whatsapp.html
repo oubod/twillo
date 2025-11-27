@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        button { background: #25D366; color: white; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #128C7E; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>🧪 WhatsApp Integration Test</h1>
+    
+    <div class="warning">
+        <strong>⚠️ Important:</strong> Make sure you've joined the Twilio sandbox first!<br>
+        1. Go to your Twilio Console → Messaging → Try it out → Send a WhatsApp message<br>
+        2. Send the join code to +14155238886 from your WhatsApp<br>
+        3. Wait for the welcome message before testing
+    </div>
+    
+    <h2>Test Message to +22227265400</h2>
+    <button onclick="testWhatsApp()">Send Test WhatsApp Message</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testWhatsApp() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="warning">⏳ Sending test message...</div>';
+            
+            try {
+                const response = await fetch('https://guuggupmkhlgerwklxwa.supabase.co/functions/v1/send-whatsapp', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1dWdndXBta2hsZ2Vyd2tseHdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMzA5NzYsImV4cCI6MjA3OTgwNjk3Nn0.yv963OqgN6EckyXU1NLNySRMoYQnfI2aidKw9epnR9k',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: {
+                            to: '+22227265400',
+                            type: 'session',
+                            message: '🍽️ Test message from Restaurant Mustafa!\n\nThis is a test of the WhatsApp integration.\n\nIf you receive this, the system is working perfectly! 🎉'
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            ✅ <strong>Success!</strong><br>
+                            Message sent successfully!<br>
+                            Message SID: ${data.messageSid}<br>
+                            Check your WhatsApp for the test message.
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            ❌ <strong>Error:</strong><br>
+                            ${data.error || 'Unknown error'}<br>
+                            Status: ${response.status}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        ❌ <strong>Network Error:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

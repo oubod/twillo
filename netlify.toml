@@ -1,15 +1,12 @@
-[[redirects]]
-  from = "/api/order-confirmation"
-  to = "https://bored-oub.app.n8n.cloud/webhook/order-confirmation"
-  status = 200
-  force = true
-  headers = {X-Forwarded-For = "{ip}", X-Real-IP = "{ip}"}
+[build]
+  publish = "dist"
+  command = "npm run build"
 
-# Handle CORS preflight requests
+[build.environment]
+  NODE_VERSION = "18"
+
+# Handle SPA routing
 [[redirects]]
-  from = "/api/order-confirmation"
-  to = "/api/order-confirmation"
+  from = "/*"
+  to = "/index.html"
   status = 200
-  force = true
-  conditions = {Role = ["OPTIONS"]}
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Methods = "POST, OPTIONS", Access-Control-Allow-Headers = "Content-Type"}
