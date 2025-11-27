@@ -34,7 +34,7 @@ export const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
       const result = await submitOrder(orderPayload);
       
       if (result.success) {
-        alert(`✅ Commande #${result.orderId?.slice(-8)} confirmée! Vous recevrez une confirmation WhatsApp.`);
+        alert(`✅ Commande ${result.dailyOrderNumber} confirmée! Vous recevrez une confirmation WhatsApp.`);
         clearCart();
         onClose();
       } else {

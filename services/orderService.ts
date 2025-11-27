@@ -27,6 +27,7 @@ export interface OrderData {
 export interface OrderResult {
   success: boolean;
   orderId?: string;
+  dailyOrderNumber?: number;
   error?: string;
 }
 
@@ -34,6 +35,18 @@ export const submitOrder = async (orderData: OrderData): Promise<OrderResult> =>
   try {
     // Normalize phone number before submission
     const normalizedPhone = normalizePhoneNumber(orderData.customer_phone);
+    
+    // Get today's order count for daily numbering
+    const today = new Date().toISOString().split('T')[0];
+    const { data: todayOrders, error: countError } = await supabase
+      .from('orders')
+      .select('id')
+      .gte('created_at', today);
+    
+    let dailyOrderNumber = 1;
+    if (!countError && todayOrders) {
+      dailyOrderNumber = todayOrders.length + 1;
+    }
     
     // Start a transaction by creating the order first
     const { data: order, error: orderError } = await supabase
@@ -101,7 +114,7 @@ export const submitOrder = async (orderData: OrderData): Promise<OrderResult> =>
           message: {
             to: normalizedPhone,
             type: 'session',
-            message: `🍽️ *Commande #${order.id.slice(-8)}*\n\n${orderData.items.map(item => `${item.quantity}x ${item.item_name_fr}`).join('\n')}\n\n💰 *Total: ${orderData.total_amount} MRU*\n⏰ ${new Date().toLocaleString('fr-FR')}\n\nMerci pour votre commande! 🙏`
+            message: `Commande ${dailyOrderNumber}\n${orderData.items.map(item => `${item.quantity}x ${item.item_name_fr}`).join('\n')}\nTotal: ${orderData.total_amount} MRU`
           },
           orderId: order.id
         })
@@ -117,7 +130,8 @@ export const submitOrder = async (orderData: OrderData): Promise<OrderResult> =>
 
     return {
       success: true,
-      orderId: order.id
+      orderId: order.id,
+      dailyOrderNumber: dailyOrderNumber
     };
 
   } catch (error) {
